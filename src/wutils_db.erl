@@ -29,12 +29,27 @@ close(Pid) ->
 close(Pool, {pgsql_connection, Pid}) ->
     episcina:return_connection(Pool, Pid).
 
+getenv(Var) ->
+    getenv(Var, false, []).
+getenv(Var, Default, []) ->
+    case os:getenv(Var) of
+        false ->
+            Default;
+        Val ->
+            Val
+    end;
+getenv(Var, Default, [integer|Rest]) ->
+    Val = getenv(Var, Default, Rest),
+    list_to_integer(Val).
+
+
 ep_open() ->
     {pgsql_connection, Pid} = pgsql_connection:open(
-				[{host, os:getenv("PGHOST")},
-				 {database, os:getenv("PGDATABASE")},
-				 {user, os:getenv("PGUSER")},
-				 {password, os:getenv("PGPASSWORD")}]),
+				[{host, getenv("PGHOST")}
+        ,{database, getenv("PGDATABASE")}
+        ,{port, getenv("PGPORT", "5432", [integer])}
+        ,{user, getenv("PGUSER")}
+        ,{password, getenv("PGPASSWORD")}]),
     {ok, Pid}.
 
 ep_close(Pid) ->

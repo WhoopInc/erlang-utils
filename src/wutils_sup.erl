@@ -26,9 +26,14 @@ start_link() ->
 %% Supervisor callbacks
 %%====================================================================
 
+-define(CHILD(ChildModule), {ChildModule, {ChildModule, start_link, []}, permanent, brutal_kill, worker, [ChildModule]}).
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
-    {ok, { {one_for_all, 0, 1}, []} }.
+    {ok, {{one_for_all, 0, 1},
+          [
+           ?CHILD(wutils_sql)
+          ]
+         }}.
 
 %%====================================================================
 %% Internal functions

@@ -6,7 +6,10 @@
  ,{applications,
    [kernel
    ,stdlib
+   ,lager
+   ,pgsql
+   ,episcina
    ]}
- ,{env,[]}
- ,{modules, []}
+ ,{env,[{sql_source_application, [wutils]}]}
+ ,{modules, [wutils]}
  ]}.
