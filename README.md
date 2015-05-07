@@ -53,3 +53,12 @@ is loaded as a query.
 
 Listing more than one application will behave as if the directories have been merged. It's
 an error to have files with the same name and different content.
+
+Datetime utilities
+-------------------
+`wutils_time:datetime()` is an extended datetime format: `{{Year, Month, Day}, {Hour, Minute, Second, Millisecond}}`
+
+`epoch_to_datetime/1` and `datetime_to_epoch` convert between the datetime tuple and milliseconds since Unix epoch.
+
+`parse_iso/1` and `format_iso/1` convert between the datetime tuple and the ISO8601 date+time string format. The
+parser is not terrifically robust, but will handle JavaScript's `Date.prototype.toISOString()`.
