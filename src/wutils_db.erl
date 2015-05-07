@@ -45,11 +45,11 @@ getenv(Var, Default, [integer|Rest]) ->
 
 ep_open() ->
     {pgsql_connection, Pid} = pgsql_connection:open(
-				[{host, getenv("PGHOST")}
-        ,{database, getenv("PGDATABASE")}
-        ,{port, getenv("PGPORT", "5432", [integer])}
-        ,{user, getenv("PGUSER")}
-        ,{password, getenv("PGPASSWORD")}]),
+				[{host, wutils_config:get({"PGHOST", pghost, string, "localhost"})}
+        ,{database, wutils_config:get({"PGDATABASE", pgdatabase, string, "postgres"})}
+        ,{port, wutils_config:get({"PGPORT", pgport, integer, 5432})}
+        ,{user, wutils_config:get({"PGUSER", pguser, string, "postgres"})}
+        ,{password, wutils_config:get({"PGPASSWORD", pgpassword, string, false})}]),
     {ok, Pid}.
 
 ep_close(Pid) ->
