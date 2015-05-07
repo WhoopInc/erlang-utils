@@ -24,6 +24,7 @@
 %  88  88       88    88,    "8b,   ,aa  88            88     88,    ,88  "8a,   ,aa  "8b,   ,aa  %
 %  88  88       88    "Y888   `"Ybbd8"'  88            88     `"8bbdP"Y8   `"Ybbd8"'   `"Ybbd8"'  %
 
+-spec get(atom()) -> binary().
 get(QueryName) ->
     gen_server:call(?MODULE, {get_query, QueryName}).
 
@@ -46,7 +47,7 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init(_Config) ->
-    {ok, SqlSrcApplication} = application:get_env(sql_source_applications),
+    SqlSrcApplication = application:get_env(wutils, sql_source_applications, [wutils]),
     Queries = lists:foldl(fun (Application, Acc) ->
                                   {ok, AppQueries} = load_application_sql(Application),
                                   orddict:merge(fun (K, V1, V2) ->
@@ -92,7 +93,7 @@ code_change(_, _, _) -> unimplemented.
 load_query(Filename, Queries) ->
     ?DEBUG("loading file: ~p", [Filename]),
     {ok, Q} = file:read_file(Filename),
-    [{filename:basename(filename:rootname(Filename, ".sql")),Q}|Queries].
+    [{erlang:list_to_atom(filename:basename(filename:rootname(Filename, ".sql"))), Q} | Queries].
 
 load_application_sql(Application) ->
     PrivDir = code:lib_dir(Application, priv),
