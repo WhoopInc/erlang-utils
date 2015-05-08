@@ -29,20 +29,6 @@ close(Pid) ->
 close(Pool, {pgsql_connection, Pid}) ->
     episcina:return_connection(Pool, Pid).
 
-getenv(Var) ->
-    getenv(Var, false, []).
-getenv(Var, Default, []) ->
-    case os:getenv(Var) of
-        false ->
-            Default;
-        Val ->
-            Val
-    end;
-getenv(Var, Default, [integer|Rest]) ->
-    Val = getenv(Var, Default, Rest),
-    list_to_integer(Val).
-
-
 ep_open() ->
     {pgsql_connection, Pid} = pgsql_connection:open(
 				[{host, wutils_config:get({"PGHOST", pghost, string, "localhost"})}

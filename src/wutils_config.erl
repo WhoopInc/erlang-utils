@@ -32,6 +32,10 @@ get_config({Env, ConfigVar, Type, Default}) ->
 get_default({_Env, _ConfigVar, Type, Default}) ->
     convert_val(Default, Type).
 
+convert_val(undefined, _) ->
+    undefined;
+convert_val(false, _) ->
+    false;
 convert_val(Val, integer) when is_integer(Val) ->
     Val;
 convert_val(Val, integer) when is_list(Val) ->
@@ -49,5 +53,7 @@ convert_val(Val, string) when is_integer(Val) ->
 get_env_default_test_() ->
     [
      ?_assertEqual(1, get({"NO_SUCH_ENV", no_config, integer, "1"}))
+    ,?_assertEqual(undefined, get({"NO_SUCH_ENV", no_config, integer, undefined}))
+    ,?_assertEqual(false, get({"NO_SUCH_ENV", no_config, integer, false}))
     ].
 -endif.
