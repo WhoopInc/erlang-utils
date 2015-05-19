@@ -16,3 +16,4 @@ _deps
 _plugins
 _tdeps
 logs
+/src/wutils_time_lex.erl
