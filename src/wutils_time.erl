@@ -68,6 +68,8 @@ datetime_to_epoch_test_() ->
     [
      ?_assertEqual(1431013248347, datetime_to_epoch({{2015,5,7},{15,40,48.347}}))
     ,?_assertEqual(0, datetime_to_epoch({{1970,1,1},{0,0,0.0}}))
+    ,?_assertEqual(0, datetime_to_epoch({{1970,1,1},{0,0,0}}))
+    ,?_assertEqual(1433004879000, datetime_to_epoch({{2015,5,30},{16,54,39}}))
     ].
 
 parse_iso_test_() ->
