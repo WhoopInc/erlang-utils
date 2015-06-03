@@ -15,6 +15,8 @@ lager_test_() ->
      ,?_assertEqual(ok, ?INFO("test-print info: ~p", [arg]))
      ,?_assertEqual(ok, ?WARN("test-print warning"))
      ,?_assertEqual(ok, ?WARN("test-print warning: ~p", [arg]))
+     ,?_assertEqual(ok, ?ERROR("test-print error"))
+     ,?_assertEqual(ok, ?ERROR("test-print error: ~p", [arg]))
      ]
     }.
 

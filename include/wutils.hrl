@@ -8,3 +8,6 @@
 
 -define(WARN(Message), ?WARN(Message, [])).
 -define(WARN(Fmt, Args), lager:warning(Fmt, Args)).
+
+-define(ERROR(Message), ?ERROR(Message, [])).
+-define(ERROR(Fmt, Args), lager:error(Fmt, Args)).
