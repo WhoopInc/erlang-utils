@@ -12,11 +12,13 @@
         ,parse_iso/1
         ,format_iso/1
         ,shift/3
+        ,datetime_to_erlang_datetime/1
+        ,erlang_datetime_to_datetime/1
         ]).
 
 -type hour() :: 0..23.
 -type minute() :: 0..59.
--type second() :: float().
+-type second() :: number().
 
 -type epoch_ms() :: non_neg_integer().
 
@@ -57,10 +59,12 @@ format_iso({{Year, Month, Day}, {Hour, Minute, Second}}) ->
     MSecond = trunc((Second - Second1) * 1000),
     lists:flatten(io_lib:format("~4..0b-~2..0b-~2..0bT~2..0b:~2..0b:~2..0b.~3..0bZ", [Year, Month, Day, Hour, Minute, Second1, MSecond])).
 
+-spec datetime_to_erlang_datetime(datetime()) -> {calendar:datetime(), number()}.
 datetime_to_erlang_datetime({Date, {H,M,S}}) ->
     SS = trunc(S),
     MS = S - SS,
     {{Date, {H,M,SS}}, MS}.
+-spec erlang_datetime_to_datetime({calendar:datetime(), number()}) -> datetime().
 erlang_datetime_to_datetime({{Date, {H,M,S}}, Ms}) ->
     {Date, {H,M,S+Ms}}.
 

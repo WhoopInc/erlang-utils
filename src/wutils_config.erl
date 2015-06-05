@@ -5,12 +5,16 @@
 
 -compile({no_auto_import,[get/1]}).
 
--type config() :: {string(), atom(), atom(), term()}.
+-type convert_type() :: atom().
+-type convert_result() :: atom()|integer()|string().
+-type config_var() :: {atom(),atom()}|atom().
+-type config() :: {string(), config_var(), convert_type(), term()}.
 
--spec get(config()) -> term().
+-spec get(config()) -> convert_result().
 get(Config) ->
     get_env(Config).
 
+-spec get_env(config()) -> convert_result().
 get_env(Config = {Env, _ConfigVar, Type, _Default}) ->
     case os:getenv(Env) of
         false ->
@@ -19,19 +23,22 @@ get_env(Config = {Env, _ConfigVar, Type, _Default}) ->
             convert_val(Val, Type)
     end.
 
+-spec get_config(config()) -> convert_result().
 get_config(Config = {_Env, {App,ConfigVar}, Type, _Default}) ->
     case application:get_env(App, ConfigVar) of
         undefined ->
             get_default(Config);
-        Val ->
+        {ok, Val} ->
             convert_val(Val, Type)
     end;
 get_config({Env, ConfigVar, Type, Default}) ->
     get_config({Env, {application:get_application(), ConfigVar}, Type, Default}).
 
+-spec get_default(config()) -> convert_result().
 get_default({_Env, _ConfigVar, Type, Default}) ->
     convert_val(Default, Type).
 
+-spec convert_val(undefined|false|string()|integer(), convert_type()) -> convert_result().
 convert_val(undefined, _) ->
     undefined;
 convert_val(false, _) ->

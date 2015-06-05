@@ -76,7 +76,7 @@ handle_cast(_Msg, Queries) ->
 
 handle_info(_Info, Queries) -> {noreply, Queries}.
 terminate(_Reason, _Queries) -> ok.
-code_change(_, _, _) -> unimplemented.
+code_change(_, _, _) -> {error, unimplemented}.
 
 %                                    88                           %
 %                                    ""                           %
