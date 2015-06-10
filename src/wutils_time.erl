@@ -47,7 +47,9 @@ datetime_to_epoch({Date, {Hour, Minute, Second}}) ->
     (EpochSeconds * 1000) + MSecond.
 
 %% this doesn't handle the full ISO format, just the complete datetime form
--spec parse_iso(string()) -> datetime().
+-spec parse_iso(string()|binary()) -> datetime().
+parse_iso(DateString) when is_binary(DateString) ->
+    parse_iso(binary_to_list(DateString));
 parse_iso(DateString) ->
     {ok, [{date, Date}, {time, Time}, {offset, {TzH,TzM}}], 1} = wutils_time_lex:string(DateString),
     OffsetMSecond = -1 * (((TzH * 60) + TzM) * 60) * 1000,
@@ -114,6 +116,7 @@ parse_iso_test_() ->
     [
      ?_assertEqual({{2015,5,7},{15,40,48.347}}, parse_iso("2015-05-07T15:40:48.347Z"))
     ,?_assertEqual({{2015,5,7},{15,40,48.347}}, parse_iso("2015-05-07T11:40:48.347-0400"))
+    ,?_assertEqual({{2015,5,7},{15,40,48.347}}, parse_iso(<<"2015-05-07T11:40:48.347-0400">>))
     ,?_assertEqual({{1970,1,1},{0,0,0.0}}, parse_iso("1969-12-31T19:00:00.000-0500"))
     ].
 
