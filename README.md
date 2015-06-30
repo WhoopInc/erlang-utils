@@ -35,6 +35,19 @@ Include the following in your configuration (`size` and `timeout` may be changed
 Connection info comes from the environment variables:
 `PGUSER`, `PGPASSWORD`, `PGDATABASE`, `PGHOST`, `PGPORT`
 
+Use the pool like this:
+```erlang
+PG = wutils_db:open(),
+Result = PG:simple_query("SELECT hello FROM world"),
+wutils_db:close(PG),
+Result.
+```
+
+or the shorter form for one-off queryies:
+```erlang
+Result = wutils_db:run("SELECT hello FROM world WHERE id = $1", [Id]).
+```
+
 SQL query repository
 ---------------------
 Read a directory full of SQL queries and store them in memory for later use

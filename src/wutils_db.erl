@@ -8,9 +8,13 @@
 
 % API
 -export([
-	 open/0, close/1,
-	 open/1, close/2
-	]).
+         open/0
+        ,open/1
+        ,close/1
+        ,close/2
+        ,run/1
+        ,run/2
+        ]).
 
 % for episcina
 -export([ep_open/0, ep_close/1]).
@@ -28,6 +32,17 @@ close(Pid) ->
     close(primary, Pid).
 close(Pool, {pgsql_connection, Pid}) ->
     episcina:return_connection(Pool, Pid).
+
+run(Query) ->
+    PG = open(),
+    Result = PG:simple_query(Query),
+    close(PG),
+    Result.
+run(Query, Bindings) ->
+    PG = open(),
+    Result = PG:extended_query(Query, Bindings),
+    close(PG),
+    Result.
 
 ep_open() ->
     {pgsql_connection, Pid} = pgsql_connection:open(
