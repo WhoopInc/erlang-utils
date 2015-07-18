@@ -1,0 +1,3 @@
+:lib-dirs '("_build/default/lib" "apps")
+:project-include-dirs '("include")
+:app-include-dirs '("include" "_build/default/lib")
