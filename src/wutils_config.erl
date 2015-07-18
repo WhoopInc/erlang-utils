@@ -3,7 +3,7 @@
 -export([get/1]).
 -export_type([config/0]).
 
--compile({no_auto_import,[get/1]}).
+-compile({no_auto_import, [get/1]}).
 
 -type convert_type() :: atom().
 -type convert_result() :: atom()|integer()|string().

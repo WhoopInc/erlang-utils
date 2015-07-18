@@ -4,7 +4,14 @@
 -export([start_link/0]).
 
 %% gen_server callbacks
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
+-export([
+         init/1
+        ,handle_call/3
+        ,handle_cast/2
+        ,handle_info/2
+        ,terminate/2
+        ,code_change/3
+        ]).
 
 %% happy functions
 -export([
@@ -28,9 +35,11 @@
 get(QueryName) ->
     gen_server:call(?MODULE, {get_query, QueryName}).
 
+-spec list() -> [atom()].
 list() ->
     gen_server:call(?MODULE, list_queries).
 
+-spec postgres_range(term(), term()) -> string().
 postgres_range(Start, End) ->
     lists:flatten([$[, Start, $,, End, $)]).
 
@@ -89,12 +98,13 @@ code_change(_, _, _) -> {error, unimplemented}.
 %                                   ,88                           %
 %                                 888P"                           %
 
-
+-spec load_query(string(), list()) -> list().
 load_query(Filename, Queries) ->
     ?DEBUG("loading file: ~p", [Filename]),
     {ok, Q} = file:read_file(Filename),
     [{erlang:list_to_atom(filename:basename(filename:rootname(Filename, ".sql"))), Q} | Queries].
 
+-spec load_application_sql(atom()) -> {ok, orddict:orddict()}.
 load_application_sql(Application) ->
     PrivDir = code:lib_dir(Application, priv),
     ?INFO("Loading SQL from ~p", [PrivDir]),
