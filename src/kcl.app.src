@@ -1,0 +1,14 @@
+{application, kcl,
+ [{description, "Kinesis client library for Erlang"}
+ ,{vsn, "1.0.0"}
+ ,{registered, []}
+ ,{mod, {'kcl_app', []}}
+ ,{applications,
+   [kernel
+   ,stdlib
+   ,lager
+   ,episcina
+   ]}
+ ,{env,[]}
+ ,{modules, []}
+ ]}
