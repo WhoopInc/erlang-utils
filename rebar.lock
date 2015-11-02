@@ -7,7 +7,7 @@
  {<<"gproc">>,{pkg,<<"gproc">>,<<"0.3.1">>},1},
  {<<"influx_udp">>,
   {git,"https://github.com/waisbrot/influx_udp.git",
-       {ref,"3b0149ac11ebce1326b94f8e0dbb50793dfe992c"}},
+       {ref,"7ed109e1b5540fff43ca549d7f5d51aca64d48e8"}},
   0},
  {<<"lager">>,{pkg,<<"lager">>,<<"2.1.1">>},0},
  {<<"pgsql">>,
