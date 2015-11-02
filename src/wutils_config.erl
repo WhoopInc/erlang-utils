@@ -1,18 +1,22 @@
 -module(wutils_config).
 
--export([get/1]).
+-export([get/1,get/3]).
 -export_type([config/0]).
 
 -compile({no_auto_import, [get/1]}).
 
--type convert_type() :: atom().
+-type convert_type() :: integer|string|string_list.
 -type convert_result() :: atom()|integer()|string().
 -type config_var() :: {atom(),atom()}|atom().
 -type config() :: {string(), config_var(), convert_type(), term()}.
 
 -spec get(config()) -> convert_result().
-get(Config) ->
+get(Config={_,_,_,_}) ->
     get_env(Config).
+
+-spec get(atom(), convert_type(), term()) -> convert_result().
+get(Name, Type, Default) ->
+    get_env({string:to_upper(atom_to_list(Name)), Name, Type, Default}).
 
 -spec get_env(config()) -> convert_result().
 get_env(Config = {Env, _ConfigVar, Type, _Default}) ->
