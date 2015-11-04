@@ -30,4 +30,4 @@ init([ApplicationName, Tags, SupFlags]) ->
                    start => {wutils_metric, start, [ApplicationName, Tags]},
                    shutdown => brutal_kill
                  }],
-    {ok, SupFlags, Children}.
+    {ok, {SupFlags, Children}}.

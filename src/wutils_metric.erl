@@ -14,34 +14,50 @@
         ,write/2, write/3
         ]).
 
+%%% Types
+-type application_name() :: nonempty_string().
+-type key() :: atom().
+-type value() :: atom() | string() | number().
+-type tags() :: #{key() => value()}.
+-type values() :: #{key() => value()} | value().
+-type metric() :: nonempty_string().
+-type state() :: tags().
+
 %%% API
+-spec start(application_name(), tags()) -> {ok, pid()}.
+-spec start(application_name()) -> {ok, pid()}.
 start(ApplicationName, Tags) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [ApplicationName, Tags], []).
 start(ApplicationName) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [ApplicationName], []).
 
-write(Name, Value, Tags) ->
-    gen_server:cast(?MODULE, {metric, Name, Value, Tags}).
-write(Name, Value) ->
-    write(Name, Value, #{}).
+-spec write(metric(), values(), tags()) -> ok.
+-spec write(metric(), values()) -> ok.
+write(Name, Values, Tags) ->
+    gen_server:cast(?MODULE, {metric, Name, Values, Tags}).
+write(Name, Values) ->
+    write(Name, Values, #{}).
 
 %%% Gen server
-
+-spec init([term()]) -> {ok, state()}.
 init(Args) ->
     State = create_state(Args),
-    write("metrics.start", 1),
+    write("metrics_start", 1),
     {ok, State}.
 
-handle_call({metric, Name, Value, Tags}, _From, State) ->
-    do_metric(Name, Value, maps:merge(State, Tags)),
+-spec handle_call({metric, metric(), values(), tags()}, any(), state()) -> {reply, ok, state()}.
+handle_call({metric, Name, Values, Tags}, _From, State) ->
+    do_metric(Name, Values, maps:merge(State, Tags)),
     {reply, ok, State}.
 
-handle_cast({metric, Name, Value, Tags}, State) ->
-    do_metric(Name, Value, maps:merge(State, Tags)),
+-spec handle_cast({metric, metric(), values(), tags()}, state()) -> {noreply, state()}.
+handle_cast({metric, Name, Values, Tags}, State) ->
+    do_metric(Name, Values, maps:merge(State, Tags)),
     {noreply, State}.
 
-handle_info({metric, Name, Value, Tags}, State) ->
-    do_metric(Name, Value, maps:merge(State, Tags)),
+-spec handle_info({metric, metric(), values(), tags()}, state()) -> {noreply, state()}.
+handle_info({metric, Name, Values, Tags}, State) ->
+    do_metric(Name, Values, maps:merge(State, Tags)),
     {noreply, State}.
 
 code_change(_, _, _) ->
@@ -52,6 +68,8 @@ terminate(_, _) ->
 
 %%% Private
 
+-spec create_state([term()]) -> state().
+-spec create_state1(application_name(), tags()) -> state().
 create_state([Application, Tags]) ->
     create_state1(Application, Tags);
 create_state([Application]) ->
@@ -60,6 +78,8 @@ create_state1(Application, Tags) ->
     {ok, Hostname} = inet:gethostname(),
     maps:merge(#{host => Hostname, application => Application}, Tags).
 
-
-do_metric(Name, Value, Tags) ->
+-spec do_metric(metric(), values(), tags()) -> ok.
+do_metric(Name, Values, Tags) when is_map(Values) ->
+    influx_udp:write(Name, Values, Tags, true);
+do_metric(Name, Value, Tags) when is_number(Value) ->
     influx_udp:write(Name, #{value => Value}, Tags, true).
