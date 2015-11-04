@@ -21,7 +21,7 @@
 -type tags() :: #{key() => value()}.
 -type values() :: #{key() => value()} | value().
 -type metric() :: nonempty_string().
--type state() :: tags().
+-type state() :: tags() | no_metrics.
 
 %%% API
 -spec start(application_name(), tags()) -> {ok, pid()}.
@@ -41,24 +41,32 @@ write(Name, Values) ->
 %%% Gen server
 -spec init([term()]) -> {ok, state()}.
 init(Args) ->
-    State = create_state(Args),
-    write("metrics_start", 1),
-    {ok, State}.
+    case os:getenv("SEND_METRICS", false) of
+        false ->
+            {ok, no_metrics};
+        _ ->
+            State = create_state(Args),
+            write("metrics_start", 1),
+            {ok, State}
+    end.
 
 -spec handle_call({metric, metric(), values(), tags()}, any(), state()) -> {reply, ok, state()}.
+handle_call(_, _, no_metrics) ->
+    {reply, ok, no_metrics};
 handle_call({metric, Name, Values, Tags}, _From, State) ->
     do_metric(Name, Values, maps:merge(State, Tags)),
     {reply, ok, State}.
 
 -spec handle_cast({metric, metric(), values(), tags()}, state()) -> {noreply, state()}.
+handle_cast(_, no_metrics) ->
+    {noreply, no_metrics};
 handle_cast({metric, Name, Values, Tags}, State) ->
     do_metric(Name, Values, maps:merge(State, Tags)),
     {noreply, State}.
 
 -spec handle_info({metric, metric(), values(), tags()}, state()) -> {noreply, state()}.
-handle_info({metric, Name, Values, Tags}, State) ->
-    do_metric(Name, Values, maps:merge(State, Tags)),
-    {noreply, State}.
+handle_info(Info, State) ->
+    handle_cast(Info, State).
 
 code_change(_, _, _) ->
     {error, unsupported}.
