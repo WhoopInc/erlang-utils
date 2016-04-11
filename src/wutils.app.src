@@ -1,6 +1,6 @@
 {application, wutils,
  [{description, "An OTP application"}
- ,{vsn, "0.1.0"}
+ ,{vsn, git}
  ,{registered, []}
  ,{mod, {'wutils_app', []}}
  ,{applications,
@@ -9,7 +9,6 @@
    ,lager
    ,pgsql
    ,episcina
-   ,influx_udp
    ]}
  ,{env,[{sql_source_application, [wutils]}]}
  ,{modules, [wutils]}
