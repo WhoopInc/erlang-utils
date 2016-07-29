@@ -41,7 +41,7 @@ epoch_to_datetime(EpochMs) ->
 -spec datetime_to_epoch(datetime()) -> epoch_ms().
 datetime_to_epoch({Date, {Hour, Minute, Second}}) ->
     Second1 = trunc(Second),
-    MSecond = trunc((Second - Second1) * 1000),
+    MSecond = round((Second - Second1) * 1000),
     GregSeconds = calendar:datetime_to_gregorian_seconds({Date, {Hour, Minute, Second1}}),
     EpochSeconds = GregSeconds - ?GREGORIAN_SECONDS,
     (EpochSeconds * 1000) + MSecond.
@@ -102,11 +102,14 @@ epoch_to_datetime_test_() ->
     [
      ?_assertEqual({{2015,5,7},{15,40,48.347}}, epoch_to_datetime(1431013248347))
     ,?_assertEqual({{1970,1,1},{0,0,0.0}}, epoch_to_datetime(0))
+    ,?_assertEqual({{2016,7,28},{13,56,6.449}}, epoch_to_datetime(1469714166449))
     ].
 
 datetime_to_epoch_test_() ->
     [
      ?_assertEqual(1431013248347, datetime_to_epoch({{2015,5,7},{15,40,48.347}}))
+    ,?_assertEqual(1469714166449, datetime_to_epoch({{2016,7,28},{13,56,6.449}}))
+    ,?_assertEqual(1469719329037, datetime_to_epoch({{2016,7,28},{15,22,9.037}}))
     ,?_assertEqual(0, datetime_to_epoch({{1970,1,1},{0,0,0.0}}))
     ,?_assertEqual(0, datetime_to_epoch({{1970,1,1},{0,0,0}}))
     ,?_assertEqual(1433004879000, datetime_to_epoch({{2015,5,30},{16,54,39}}))
