@@ -58,9 +58,7 @@ ep_open() ->
     Args = [{host, wutils_config:get({"RDHOST", rdhost, string, "localhost"})}
         ,{port, wutils_config:get({"RDPORT", rdport, integer, 6379})}
         ,{password, wutils_config:get({"RDPASSWORD", rdpassword, string, false})}],
-    io:fwrite("args=~p~n",[Args]),
-    {ok, Pid} = eredis:start_link(Args
-				),
+    {ok, Pid} = eredis:start_link(Args),
     {ok, Pid}.
 
 -spec ep_close(pid()) -> ok.
