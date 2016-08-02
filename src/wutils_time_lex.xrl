@@ -14,6 +14,7 @@ Rules.
 
 Z                               : {token, {offset, {0,0}}}.
 [-+]{D}{D}{D}{D}                : {token, {offset, chop_ints(TokenChars, [[1,3],[4,5]])}}.
+[-+]{D}{D}:{D}{D}                : {token, {offset, chop_ints(TokenChars, [[1,3],[5,6]])}}.
 
 [\t\sT]                         : skip_token.
 
