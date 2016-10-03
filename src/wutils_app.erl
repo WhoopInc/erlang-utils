@@ -21,7 +21,7 @@ start(_StartType, _StartArgs) ->
     Config = [
               {pg_host, "PGHOST", [required]}
              ,{pg_database, "PGDATABASE", [required]}
-             ,{pg_port, "PGPORT", [required, {transform, integer}]}
+             ,{pg_port, "PGPORT", [{transform, integer}, {default, 5432}]}
              ,{pg_user, "PGUSER", [required]}
              ,{pg_password, "PGPASSWORD", [required]}
              ],
