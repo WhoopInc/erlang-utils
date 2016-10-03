@@ -7,6 +7,7 @@
    [kernel
    ,stdlib
    ,lager
+   ,stillir
    ,pgsql
    ,episcina
    ]}

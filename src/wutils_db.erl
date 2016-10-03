@@ -11,6 +11,7 @@
          open/0, open/1
         ,close/1, close/2
         ,run/1, run/2
+        ,with_connection/1
         ]).
 
 % for episcina
@@ -19,8 +20,12 @@
         ,ep_close/1
         ]).
 
--spec open() -> pgsql_connection:pgsql_connection() | {error,timeout}.
--spec open(atom()) -> pgsql_connection:pgsql_connection() | {error,timeout}.
+-type connection() :: pgsql_connection:pgsql_connection().
+
+-export_type([connection/0]).
+
+-spec open() -> connection() | {error,timeout}.
+-spec open(atom()) -> connection() | {error,timeout}.
 open() ->
     open(primary).
 open(Pool) ->
@@ -30,34 +35,45 @@ open(Pool) ->
         {error, timeout} ->
             {error, timeout}
     end.
--spec close(pgsql_connection:pgsql_connection()) -> ok.
--spec close(atom(), pgsql_connection:pgsql_connection()) -> ok.
+-spec close(connection()) -> ok.
+-spec close(atom(), connection()) -> ok.
 close(Pid) ->
     close(primary, Pid).
 close(Pool, {pgsql_connection, Pid}) ->
     episcina:return_connection(Pool, Pid).
 
+-spec with_connection(fun((connection()) -> Result)) -> Result.
+with_connection(Fun) ->
+    PG = open(),
+    Result = Fun(PG),
+    close(PG),
+    Result.
+
 -spec run(string()|binary()) -> pgsql_connection:result_tuple().
 -spec run(string()|binary(), list()) -> pgsql_connection:result_tuple().
 run(Query) ->
-    PG = open(),
-    Result = PG:simple_query(Query),
-    close(PG),
-    Result.
+    with_connection(fun (PG) ->
+                            lager:debug("query=~p", Query),
+                            pgsql_connection:simple_query(Query, PG)
+                    end).
 run(Query, Bindings) ->
-    PG = open(),
-    Result = PG:extended_query(Query, Bindings),
-    close(PG),
-    Result.
+    with_connection(fun (PG) ->
+                            lager:debug("query=~p, bindings=~p", Query, Bindings),
+                            pgsql_connection:extended_query(Query, Bindings, PG)
+                    end).
+
+-define(APPLICATION, wutils).
 
 -spec ep_open() -> {ok, pid()}.
 ep_open() ->
     {pgsql_connection, Pid} = pgsql_connection:open(
-				[{host, wutils_config:get({"PGHOST", pghost, string, "localhost"})}
-        ,{database, wutils_config:get({"PGDATABASE", pgdatabase, string, "postgres"})}
-        ,{port, wutils_config:get({"PGPORT", pgport, integer, 5432})}
-        ,{user, wutils_config:get({"PGUSER", pguser, string, "postgres"})}
-        ,{password, wutils_config:get({"PGPASSWORD", pgpassword, string, false})}]),
+        [
+         {host, stillir:get_config(?APPLICATION, pg_host)}
+        ,{database, stillir:get_config(?APPLICATION, pg_database)}
+        ,{port, stillir:get_config(?APPLICATION, pg_port)}
+        ,{user, stillir:get_config(?APPLICATION, pg_user)}
+        ,{password, stillir:get_config(?APPLICATION, pg_password)}
+        ]),
     {ok, Pid}.
 
 -spec ep_close(pid()) -> ok.

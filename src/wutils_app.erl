@@ -12,12 +12,20 @@
          start/2
         ,stop/1
         ]).
-
+-define(APPLICATION, wutils).
 %%====================================================================
 %% API
 %%====================================================================
 -spec start(application:start_type(), term()) -> {ok, pid()}.
 start(_StartType, _StartArgs) ->
+    Config = [
+              {pg_host, "PGHOST", [required]}
+             ,{pg_database, "PGDATABASE", [required]}
+             ,{pg_port, "PGPORT", [required, {transform, integer}]}
+             ,{pg_user, "PGUSER", [required]}
+             ,{pg_password, "PGPASSWORD", [required]}
+             ],
+    ok = stillir:set_config(?APPLICATION, Config),
     wutils_sup:start_link().
 
 %%--------------------------------------------------------------------
