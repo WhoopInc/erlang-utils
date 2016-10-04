@@ -26,6 +26,7 @@ start(_StartType, _StartArgs) ->
              ,{pg_password, "PGPASSWORD", [required]}
              ],
     ok = stillir:set_config(?APPLICATION, Config),
+    ok = wutils_db:start_pools(),
     wutils_sup:start_link().
 
 %%--------------------------------------------------------------------
