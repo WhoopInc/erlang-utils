@@ -15,25 +15,7 @@
         ,start_pools/1, start_pools/0
         ]).
 
-start_pools() ->
-    start_pools(wutils).
-start_pools(Application) ->
-    case application:get_env(Application, pools) of
-        {ok, Pools} ->
-            Errors = lists:filter(fun ({V,_}) ->
-                                          V =:= error
-                                  end, episcina:start_pools(Pools)),
-            case Errors of
-                [] ->
-                    ok;
-                Errs ->
-                    throw({"unable to start pools", Errs})
-            end;
-        _ ->
-            ok
-    end.
-
-% for episcina
+%%% for episcina
 -export([
          ep_open/0
         ,ep_close/1
@@ -42,6 +24,22 @@ start_pools(Application) ->
 -type connection() :: pgsql_connection:pgsql_connection().
 
 -export_type([connection/0]).
+
+start_pools() ->
+    start_pools(wutils).
+start_pools(Application) ->
+    case application:get_env(Application, pools) of
+        {ok, Pools} ->
+            PoolResults = lists:zip(Pools, episcina:start_pools(Pools)),
+            lists:foreach(fun ({{PoolName, _}, {error, Reason}}) ->
+                                  error({"unable to start pool: "++atom_to_list(PoolName), Reason});
+                              (_) ->
+                                  ok
+                          end, PoolResults),
+            ok;
+        _ ->
+            ok
+    end.
 
 -spec open() -> connection() | {error,timeout}.
 -spec open(atom()) -> connection() | {error,timeout}.
