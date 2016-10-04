@@ -12,7 +12,26 @@
         ,close/1, close/2
         ,run/1, run/2
         ,with_connection/1
+        ,start_pools/1, start_pools/0
         ]).
+
+start_pools() ->
+    start_pools(wutils).
+start_pools(Application) ->
+    case application:get_env(Application, pools) of
+        {ok, Pools} ->
+            Errors = lists:filter(fun ({V,_}) ->
+                                          V =:= error
+                                  end, episcina:start_pools(Pools)),
+            case Errors of
+                [] ->
+                    ok;
+                Errs ->
+                    throw({"unable to start pools", Errs})
+            end;
+        _ ->
+            ok
+    end.
 
 % for episcina
 -export([
