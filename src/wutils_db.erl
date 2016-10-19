@@ -70,12 +70,12 @@ with_connection(Fun) ->
 -spec run(string()|binary(), list()) -> pgsql_connection:result_tuple().
 run(Query) ->
     with_connection(fun (PG) ->
-                            lager:debug("query=~p", [Query]),
+                            % lager:debug("query=~p", [Query]),
                             pgsql_connection:simple_query(Query, PG)
                     end).
 run(Query, Bindings) ->
     with_connection(fun (PG) ->
-                            lager:debug("query=~p, bindings=~p", [Query, Bindings]),
+                            % lager:debug("query=~p, bindings=~p", [Query, Bindings]),
                             pgsql_connection:extended_query(Query, Bindings, PG)
                     end).
 
