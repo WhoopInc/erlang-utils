@@ -13,6 +13,7 @@
         ,run/1, run/2
         ,with_connection/1
         ,start_pools/1, start_pools/0
+        ,query/2, query/3
         ]).
 
 %%% for episcina
@@ -70,14 +71,36 @@ with_connection(Fun) ->
 -spec run(string()|binary(), list()) -> pgsql_connection:result_tuple().
 run(Query) ->
     with_connection(fun (PG) ->
-                            % lager:debug("query=~p", [Query]),
-                            pgsql_connection:simple_query(Query, PG)
+                            query(Query, PG)
                     end).
 run(Query, Bindings) ->
     with_connection(fun (PG) ->
-                            % lager:debug("query=~p, bindings=~p", [Query, Bindings]),
-                            pgsql_connection:extended_query(Query, Bindings, PG)
+                            query(Query, Bindings, PG)
                     end).
+
+query(Query, PG) ->
+    %% lager:debug("connection=~p query=~p", [Query, PG]),
+    try pgsql_connection:simple_query(Query, PG) of
+        V ->
+            V
+    catch
+        exit:connection_timeout ->
+            error({pgsql, connection_timeout, PG});
+        Type:Reason ->
+            error({pgsql, Type, Reason, PG})
+    end.
+
+query(Query, Args, PG) ->
+    %% lager:debug("connection=~p, query=~p", [Query, PG]),
+    try pgsql_connection:extended_query(Query, Args, PG) of
+        V ->
+            V
+    catch
+        exit:connection_timeout ->
+            error({pgsql, connection_timeout, PG});
+        Type:Reason ->
+            error({pgsql, Type, Reason, PG})
+    end.
 
 -define(APPLICATION, wutils).
 
