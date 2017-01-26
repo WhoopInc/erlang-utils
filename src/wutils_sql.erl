@@ -24,7 +24,7 @@
 
 -spec get(atom()) -> binary().
 get(QueryName) ->
-    gen_server:call(?MODULE, {get_query, QueryName}).
+    gen_server:call(?MODULE, {get_query, QueryName}, infinity).
 
 -spec list() -> [atom()].
 list() ->
