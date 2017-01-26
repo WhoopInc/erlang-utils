@@ -99,6 +99,7 @@ query(Query, Args, PG) ->
         exit:connection_timeout ->
             error({pgsql, connection_timeout, PG});
         Type:Reason ->
+            erlang:display(erlang:get_stacktrace()),
             error({pgsql, Type, Reason, PG})
     end.
 
