@@ -12,6 +12,7 @@
         ,close/1, close/2
         ,run/1, run/2
         ,with_connection/1
+        ,with_connection/2
         ,start_pools/1, start_pools/0
         ,query/2, query/3
         ]).
@@ -62,9 +63,13 @@ close(Pool, {pgsql_connection, Pid}) ->
 
 -spec with_connection(fun((connection()) -> Result)) -> Result.
 with_connection(Fun) ->
-    PG = open(),
+    with_connection(Fun, primary).
+
+-spec with_connection(fun((connection()) -> Result), atom()) -> Result.
+with_connection(Fun, Pool) ->
+    PG = open(Pool),
     Result = Fun(PG),
-    close(PG),
+    close(PG, Pool),
     Result.
 
 -spec run(string()|binary()) -> pgsql_connection:result_tuple().
