@@ -69,7 +69,7 @@ with_connection(Fun) ->
 with_connection(Fun, Pool) ->
     PG = open(Pool),
     Result = Fun(PG),
-    close(PG, Pool),
+    close(Pool, PG),
     Result.
 
 -spec run(string()|binary()) -> pgsql_connection:result_tuple().
