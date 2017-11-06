@@ -67,10 +67,15 @@ with_connection(Fun) ->
 
 -spec with_connection(fun((connection()) -> Result), atom()) -> Result.
 with_connection(Fun, Pool) ->
-    PG = open(Pool),
-    Result = Fun(PG),
-    close(Pool, PG),
-    Result.
+    case open(Pool) of
+      {error, timeout} ->
+        error({error, get_connection_timeout});
+      PG ->
+        Result = Fun(PG),
+        close(Pool, PG),
+        Result
+    end.
+
 
 -spec run(string()|binary()) -> pgsql_connection:result_tuple().
 -spec run(string()|binary(), list()) -> pgsql_connection:result_tuple().
@@ -90,8 +95,10 @@ query(Query, PG) ->
             V
     catch
         exit:connection_timeout ->
+            close(PG),
             error({pgsql, connection_timeout, PG});
         Type:Reason ->
+            close(PG),
             error({pgsql, Type, Reason, PG})
     end.
 
@@ -102,8 +109,10 @@ query(Query, Args, PG) ->
             V
     catch
         exit:connection_timeout ->
+            close(PG),
             error({pgsql, connection_timeout, PG});
         Type:Reason ->
+            close(PG),
             erlang:display(erlang:get_stacktrace()),
             error({pgsql, Type, Reason, PG})
     end.
