@@ -84,26 +84,33 @@ run(Query, Bindings) ->
                     end).
 
 query(Query, PG) ->
-    %% lager:debug("connection=~p query=~p", [Query, PG]),
+    lager:debug("connection=~p query=~p", [Query, PG]),
+    Now = erlang:system_time(milli_seconds),
     try pgsql_connection:simple_query(Query, PG) of
         V ->
+            lager:info("query latency = ~p", [erlang:system_time(milli_seconds)-Now]),
             V
     catch
         exit:connection_timeout ->
             error({pgsql, connection_timeout, PG});
         Type:Reason ->
+            lager:error("type=~p reason=~p", [Type, Reason]),
+            erlang:display(erlang:get_stacktrace()),
             error({pgsql, Type, Reason, PG})
     end.
 
 query(Query, Args, PG) ->
-    %% lager:debug("connection=~p, query=~p", [Query, PG]),
+    lager:debug("connection=~p, query=~p", [Query, PG]),
+    Now = erlang:system_time(milli_seconds),
     try pgsql_connection:extended_query(Query, Args, PG) of
         V ->
+            lager:info("query latency = ~p", [erlang:system_time(milli_seconds)-Now]),
             V
     catch
         exit:connection_timeout ->
             error({pgsql, connection_timeout, PG});
         Type:Reason ->
+            lager:error("type=~p reason=~p", [Type, Reason]),
             erlang:display(erlang:get_stacktrace()),
             error({pgsql, Type, Reason, PG})
     end.
