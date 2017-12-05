@@ -66,7 +66,7 @@ with_connection(Fun) ->
     with_connection(Fun, primary).
 
 -spec with_backup_connection(fun((connection()) -> Result)) -> Result.
-with_connection(Fun) ->
+with_backup_connection(Fun) ->
     with_connection(Fun, backup).
 
 -spec with_connection(fun((connection()) -> Result), atom()) -> Result.
@@ -80,7 +80,6 @@ with_connection(Fun, Pool) ->
         Result
     end.
 
-
 -spec run(string()|binary()) -> pgsql_connection:result_tuple().
 -spec run(string()|binary(), list()) -> pgsql_connection:result_tuple().
 run(Query) ->
@@ -89,6 +88,17 @@ run(Query) ->
                     end).
 run(Query, Bindings) ->
     with_connection(fun (PG) ->
+                            query(Query, Bindings, PG)
+                    end).
+
+-spec run_backup(string()|binary()) -> pgsql_connection:result_tuple().
+-spec run_backup(string()|binary(), list()) -> pgsql_connection:result_tuple().
+run_backup(Query) ->
+    with_backup_connection(fun (PG) ->
+                            query(Query, PG)
+                    end).
+run_backup(Query, Bindings) ->
+    with_backup_connection(fun (PG) ->
                             query(Query, Bindings, PG)
                     end).
 
