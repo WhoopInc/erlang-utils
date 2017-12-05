@@ -11,8 +11,11 @@
          open/0, open/1
         ,close/1, close/2
         ,run/1, run/2
+        ,run_backup/1, run_backup/2
         ,with_connection/1
         ,with_connection/2
+        ,with_backup_connection/1
+        ,with_backup_connection/2
         ,start_pools/1, start_pools/0
         ,query/2, query/3
         ]).
@@ -20,7 +23,9 @@
 %%% for episcina
 -export([
          ep_open/0
+        ,ep_backup_open/0
         ,ep_close/1
+        ,ep_backup_close/1
         ]).
 
 -type connection() :: pgsql_connection:pgsql_connection().
