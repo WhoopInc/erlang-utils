@@ -15,7 +15,6 @@
         ,with_connection/1
         ,with_connection/2
         ,with_backup_connection/1
-        ,with_backup_connection/2
         ,start_pools/1, start_pools/0
         ,query/2, query/3
         ]).
