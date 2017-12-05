@@ -65,6 +65,10 @@ close(Pool, {pgsql_connection, Pid}) ->
 with_connection(Fun) ->
     with_connection(Fun, primary).
 
+-spec with_backup_connection(fun((connection()) -> Result)) -> Result.
+with_connection(Fun) ->
+    with_connection(Fun, backup).
+
 -spec with_connection(fun((connection()) -> Result), atom()) -> Result.
 with_connection(Fun, Pool) ->
     case open(Pool) of
@@ -133,4 +137,22 @@ ep_open() ->
 
 -spec ep_close(pid()) -> ok.
 ep_close(Pid) ->
+    pgsql_connection:close({pgsql_connection, Pid}).
+
+%% backup conn entry point %%
+
+-spec ep_backup_open() -> {ok, pid()}.
+ep_backup_open() ->
+    {pgsql_connection, Pid} = pgsql_connection:open(
+        [
+         {host, stillir:get_config(?APPLICATION, bu_host)}
+        ,{database, stillir:get_config(?APPLICATION, bu_database)}
+        ,{port, stillir:get_config(?APPLICATION, bu_port)}
+        ,{user, stillir:get_config(?APPLICATION, bu_user)}
+        ,{password, stillir:get_config(?APPLICATION, bu_password)}
+        ]),
+    {ok, Pid}.
+
+-spec ep_backup_close(pid()) -> ok.
+ep_backup_close(Pid) ->
     pgsql_connection:close({pgsql_connection, Pid}).
